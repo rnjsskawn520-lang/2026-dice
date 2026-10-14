@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>신기한 주사위 던지기 실험실</title>
+    <!-- Tailwind CSS 로드 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts (Jua 폰트 적용) -->
+    <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Jua', sans-serif;
+            background: linear-gradient(135deg, #fef08a 0%, #fed7aa 50%, #fbcfe8 100%);
+            min-height: 100vh;
+        }
+        .dice-face {
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .dice-face:hover {
+            transform: scale(1.05) rotate(3deg);
+        }
+        .bar-fill {
+            transition: height 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-between p-4 md:p-8">
+
+    <!-- 상단 제목 영역 -->
+    <header class="text-center mb-6 mt-2">
+        <h1 class="text-4xl md:text-5xl text-purple-700 drop-shadow-md mb-2">🎲 신기한 1~3 주사위 실험실 🎲</h1>
+        <p class="text-xl md:text-2xl text-pink-600">버튼을 눌러서 주사위를 던지고 결과를 눈으로 확인해 봐요!</p>
+    </header>
+
+    <!-- 메인 콘텐츠 영역 -->
+    <main class="w-full max-w-4xl bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl p-6 md:p-10 mb-6 border-4 border-yellow-300">
+        
+        <!-- 주사위 시각화 & 최근 결과 표시 -->
+        <div class="flex flex-col md:flex-row items-center justify-around gap-6 mb-8 bg-amber-50 p-6 rounded-2xl border-2 border-dashed border-amber-300">
+            <div class="text-center">
+                <div class="text-lg text-gray-600 mb-2">방금 나온 주사위</div>
+                <div id="dice-display" class="w-24 h-24 bg-white rounded-2xl shadow-lg border-4 border-purple-400 flex items-center justify-center text-5xl text-purple-600 dice-face">
+                    ?
+                </div>
+            </div>
+            <div class="text-center md:text-left">
+                <div class="text-2xl text-purple-800 mb-1" id="total-count-text">총 던진 횟수: 0번</div>
+                <div class="text-lg text-gray-500" id="status-message">버튼을 눌러 실험을 시작하세요!</div>
+            </div>
+            <div>
+                <button onclick="resetData()" class="bg-rose-400 hover:bg-rose-500 text-white font-bold px-5 py-3 rounded-2xl shadow-md text-lg transition transform active:scale-95">
+                    🔄 처음부터 다시
+                </button>
+            </div>
+        </div>
+
+        <!-- 버튼 조작 영역 (1번, 10번, 100번) -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+            <button onclick="rollDice(1)" class="bg-emerald-400 hover:bg-emerald-500 text-white text-2xl py-4 rounded-2xl shadow-lg transform active:scale-95 transition flex items-center justify-center gap-2 border-b-4 border-emerald-600">
+                🎯 1번 던지기
+            </button>
+            <button onclick="rollDice(10)" class="bg-sky-400 hover:bg-sky-500 text-white text-2xl py-4 rounded-2xl shadow-lg transform active:scale-95 transition flex items-center justify-center gap-2 border-b-4 border-sky-600">
+                🚀 10번 던지기
+            </button>
+            <button onclick="rollDice(100)" class="bg-indigo-400 hover:bg-indigo-500 text-white text-2xl py-4 rounded-2xl shadow-lg transform active:scale-95 transition flex items-center justify-center gap-2 border-b-4 border-indigo-600">
+                🔥 100번 던지기
+            </button>
+        </div>
+
+        <!-- 막대그래프 결과 영역 -->
+        <div>
+            <h2 class="text-2xl text-purple-700 mb-4 text-center">📊 실험 결과 그래프와 비율</h2>
+            
+            <div class="grid grid-cols-3 gap-4 h-64 items-end bg-slate-100 p-6 rounded-2xl border-4 border-purple-200 relative">
+                
+                <!-- 주사위 1 결과 -->
+                <div class="flex flex-col items-center h-full justify-end">
+                    <div id="percent-1" class="text-lg text-purple-700 font-bold mb-2">0%</div>
+                    <div class="w-16 md:w-24 bg-pink-300 rounded-t-xl overflow-hidden flex items-end justify-center w-full max-w-[80px]" style="height: 100%;">
+                        <div id="bar-1" class="w-full bg-pink-500 bar-fill rounded-t-xl" style="height: 0%;"></div>
+                    </div>
+                    <div class="mt-3 text-xl text-gray-700">주사위 1</div>
+                    <div id="count-1" class="text-base text-gray-500 font-normal">0번</div>
+                </div>
+
+                <!-- 주사위 2 결과 -->
+                <div class="flex flex-col items-center h-full justify-end">
+                    <div id="percent-2" class="text-lg text-purple-700 font-bold mb-2">0%</div>
+                    <div class="w-16 md:w-24 bg-sky-300 rounded-t-xl overflow-hidden flex items-end justify-center w-full max-w-[80px]" style="height: 100%;">
+                        <div id="bar-2" class="w-full bg-sky-500 bar-fill rounded-t-xl" style="height: 0%;"></div>
+                    </div>
+                    <div class="mt-3 text-xl text-gray-700">주사위 2</div>
+                    <div id="count-2" class="text-base text-gray-500 font-normal">0번</div>
+                </div>
+
+                <!-- 주사위 3 결과 -->
+                <div class="flex flex-col items-center h-full justify-end">
+                    <div id="percent-3" class="text-lg text-purple-700 font-bold mb-2">0%</div>
+                    <div class="w-16 md:w-24 bg-amber-300 rounded-t-xl overflow-hidden flex items-end justify-center w-full max-w-[80px]" style="height: 100%;">
+                        <div id="bar-3" class="w-full bg-amber-500 bar-fill rounded-t-xl" style="height: 0%;"></div>
+                    </div>
+                    <div class="mt-3 text-xl text-gray-700">주사위 3</div>
+                    <div id="count-3" class="text-base text-gray-500 font-normal">0번</div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="text-center text-purple-900 text-lg">
+        <p>✨ 재미있는 확률과 통계 실험실 ✨</p>
+    </footer>
+
+    <!-- 자바스크립트 로직 -->
+    <script>
+        // 실험 데이터를 저장하는 변수
+        let counts = { 1: 0, 2: 0, 3: 0 };
+        let totalCount = 0;
+
+        // 주사위 던지기 함수 (1회, 10회, 100회)
+        function rollDice(times) {
+            for (let i = 0; i < times; i++) {
+                // 1부터 3 사이의 무작위 정수 생성
+                const result = Math.floor(Math.random() * 3) + 1;
+                counts[result]++;
+                totalCount++;
+                
+                // 만약 1번 던지기라면 화면에 주사위 눈을 크게 보여줌
+                if (times === 1) {
+                    const diceDisplay = document.getElementById('dice-display');
+                    diceDisplay.innerText = result;
+                    // 애니메이션 효과 초기화 후 재적용
+                    diceDisplay.style.transform = 'scale(1.2) rotate(360deg)';
+                    setTimeout(() => {
+                        diceDisplay.style.transform = 'scale(1) rotate(0deg)';
+                    }, 300);
+                }
+            }
+
+            if (times > 1) {
+                document.getElementById('dice-display').innerText = '🎲';
+                document.getElementById('status-message').innerText = `${times}번을 빠르게 던졌어요!`;
+            } else {
+                document.getElementById('status-message').innerText = `주사위가 ${counts[totalCount > 0 ? 1 : 1]}를 가리켰어요!`;
+            }
+
+            updateUI();
+        }
+
+        // 모든 데이터를 초기화하는 함수
+        function resetData() {
+            counts = { 1: 0, 2: 0, 3: 0 };
+            totalCount = 0;
+            document.getElementById('dice-display').innerText = '?';
+            document.getElementById('status-message').innerText = '기록이 초기화되었어요. 다시 시작해봐요!';
+            updateUI();
+        }
+
+        // 화면(UI)을 최신 데이터로 업데이트하는 함수
+        function updateUI() {
+            // 총 던진 횟수 텍스트 업데이트
+            document.getElementById('total-count-text').innerText = `총 던진 횟수: ${totalCount}번`;
+
+            // 각각의 최대 빈도를 구하여 상대적 높이 비율 계산 (그래프 시각화용)
+            let maxCount = Math.max(counts[1], counts[2], counts[3]);
+            if (maxCount === 0) maxCount = 1; // 0으로 나누기 방지
+
+            for (let i = 1; i <= 3; i++) {
+                const count = counts[i];
+                // 퍼센트 계산 (소수점 첫째 자리까지)
+                const percent = totalCount > 0 ? ((count / totalCount) * 100).toFixed(1) : 0.0;
+                
+                // 막대 높이 비율 계산 (최대값 기준 상대 높이, 최소 5%는 보이게 처리)
+                let heightPercent = (count / maxCount) * 100;
+                if (count > 0 && heightPercent < 10) heightPercent = 10;
+
+                // DOM 업데이트
+                document.getElementById(`count-${i}`).innerText = `${count}번`;
+                document.getElementById(`percent-${i}`).innerText = `${percent}%`;
+                document.getElementById(`bar-${i}`).style.height = `${heightPercent}%`;
+            }
+        }
+    </script>
+</body>
+</html>
